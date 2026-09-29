@@ -1,0 +1,26 @@
+﻿# HyperOS yupei payload 分区清单（payload-dumper-go -l -m）
+# 来源：yupei-ota_full-OS4.0.5.0.XPZCNXM-user-17.0-4fe489f542
+product              6144300 KiB
+vendor               1691072 KiB
+odm                  1599616 KiB
+system                954656 KiB
+system_ext            804228 KiB
+mi_ext                445564 KiB
+vendor_dlkm            56568 KiB
+boot                  98304 KiB
+vendor_boot           98304 KiB
+recovery             102400 KiB
+system_dlkm           14936 KiB
+dtbo                  18432 KiB
+init_boot              8192 KiB
+vm-bootsys            20480 KiB
+modem                114764 KiB
+dsp                   65536 KiB
+mi_product               340 KiB
++ firmware: abl aop aop_config bluetooth cpucp cpucp_dtb devcfg featenabler
+  hyp idmanager imagefv keymaster multiimgqti pvmfw qupfw shrm soccp_dcd
+  soccp_debug spuservice tz uefi uefisecapp vbmeta vbmeta_system xbl xbl_config xbl_ramdump
+  countrycode
+android              17 (system/product) / 15 (odm/system_dlkm)
+kmi                  android15-6.6
+kernel               6.6.118-android15-8-gc4127a25dcf3-ab15863337-4k

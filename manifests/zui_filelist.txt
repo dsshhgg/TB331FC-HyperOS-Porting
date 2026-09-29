@@ -1,0 +1,21 @@
+﻿# ZUI TB331FC 分区清单（摘要，详见 docs/zui_structure.md）
+# 来源：partition.xml + super 扫描 + magiskboot
+boot.img                 96 MiB     kernel GKI 5.15.123-android13
+init_boot.img            8 MiB
+vendor_boot.img          96 MiB
+dtbo.img                 24 MiB
+recovery.img             100 MiB
+vbmeta.img               64 KiB
+vbmeta_system.img        64 KiB
+super                    12 GiB     system/product/system_ext/vendor/odm/...
+super_1..8.img           ~7.3 GiB   线刷分片
+modem (NON-HLOS.bin)     180 MiB
+bluetooth (BTFM.bin)     1 MiB
+dspso.bin                32 MiB
+persist.img              32 MiB
+metadata.img             64 MiB
+userdata                 10 GiB
+xbl/abl/tz/hyp/rpm/keymint/devcfg/qupfw/...
+platform                 bengal SM6225
+android                  14 (system) / 13 (vendor)
+kmi                      android13-5.15
