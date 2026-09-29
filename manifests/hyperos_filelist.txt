@@ -1,4 +1,4 @@
-﻿# HyperOS yupei payload 分区清单（payload-dumper-go -l -m）
+# HyperOS yupei payload 分区清单（payload-dumper-go -l -m）
 # 来源：yupei-ota_full-OS4.0.5.0.XPZCNXM-user-17.0-4fe489f542
 product              6144300 KiB
 vendor               1691072 KiB

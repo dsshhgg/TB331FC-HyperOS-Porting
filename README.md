@@ -1,40 +1,77 @@
-﻿# TB331FC-HyperOS-Porting
+# TB331FC-HyperOS-Porting
 
-鑱旀兂灏忔柊骞虫澘 2024锛圱B331FC锛夌Щ妞?Xiaomi HyperOS 4.0 椤圭洰銆?
-## 璁惧淇℃伅
-- 璁惧锛歀enovo Xiaoxin Pad 2024 (TB331FC)
-- 骞冲彴锛歈ualcomm SM6225-AD (Snapdragon 685)
-- 鍐呮牳锛欸KI 5.15.123-android13锛圞MI: android13-5.15锛?- 搴曞寘锛歓UI 16.0.544 瀹樻柟鍥轰欢
+联想小新平板 2024（TB331FC）移植 Xiaomi HyperOS 4.0 项目。
 
-## 绉绘婧?- 婧愭満鍨嬶細Xiaomi Pad 6 Pro (yupei)
-- ROM锛欻yperOS 4.0 / Android 17
-- 鍖呭悕锛歽upei-ota_full-OS4.0.5.0.XPZCNXM-user-17.0-4fe489f542
+## 设备信息
+- 设备：Lenovo Xiaoxin Pad 2024（TB331FC）
+- 平台：Qualcomm SM6225-AD（Snapdragon 685）
+- 内核：GKI 5.15.123-android13（KMI: android13-5.15）
+- 底包：ZUI 16.0.544 官方固件
 
-## 绉绘绛栫暐
-**纭欢闈?ZUI锛屼笂灞傞潬 HyperOS**
-- 淇濈暀 ZUI锛歜oot / dtbo / vendor / odm / firmware
-- 绉绘 HyperOS锛歴ystem / system_ext / product / mi_ext
+## 移植源
+- 源机型：Xiaomi Pad 6 Pro（yupei）
+- ROM：HyperOS 4.0 / Android 17
+- 包名：yupei-ota_full-OS4.0.5.0.XPZCNXM-user-17.0-4fe489f542
 
-## 褰撳墠杩涘害
-- [x] ZUI 搴曞寘瑙ｅ寘 + 缁撴瀯鍒嗘瀽 鈫?`docs/zui_structure.md`
-- [x] HyperOS 鍖呰В鍖?+ 缁撴瀯鍒嗘瀽 鈫?`docs/hyperos_structure.md`
-- [x] 鍙鎬ц瘎浼版姤鍛?鈫?`docs/feasibility_report.md`锛堢粨璁猴細**涓嶅彲琛?*瀹屾暣绉绘锛?- [x] vendor 宸紓娓呭崟 鈫?`docs/vendor_diff.md`
-- [ ] 棣栨璇曞埛
-- [ ] 寮€鏈鸿皟璇?
-## 鏍稿績缁撹锛?026-09-29锛?**瀹屾暣绉绘 yupei HyperOS 4 鍒?TB331FC 涓嶅彲琛屻€?*
-- GKI KMI锛歚android13-5.15` vs `android15-6.6`锛堝惁鍐筹級
-- SoC锛歋M6225 vs 鏂颁竴浠ｉ珮閫氾紙鍚﹀喅锛?- Android锛?4/13 鈫?17锛堣法 3 浠ｏ級
-- 绌洪棿锛氱郴缁熶晶 ~9.3 GiB > system_a 5.79 GiB
-- 鏇夸唬锛欸SI / 闄嶇骇婧愬寘 / 鏃㈡湁 TB331FC 涓撳寘
+## 移植策略
+**硬件靠 ZUI，上层靠 HyperOS；内核用原厂，不换 yupei 内核。**
 
-## 鐜渚濊禆
-- OrangeFox Recovery锛圱B331FC 涓撳睘锛夛細瑙?[TB331FC-TWRP](https://github.com/dsshhgg/TB331FC-TWRP) fox-12.1 鍒嗘敮
-- payload_dumper
-- erofs-utils / simg2img
+- 保留 ZUI：boot / init_boot / vendor_boot / dtbo / vendor / odm / firmware
+- 移植 HyperOS：system / system_ext / product（已 debloat）
+
+## 核心结论（2026-09-29）
+**完整移植 yupei HyperOS 4（含内核/vendor）不可行。**
+
+| 维度 | 结论 |
+|------|------|
+| GKI KMI | android13-5.15 vs android15-6.6，不兼容（否决） |
+| SoC | SM6225 vs 新一代高通，固件/驱动不可互换 |
+| Android | 14/13 → 17，跨 3 个大版本 |
+| 空间 | 原始系统侧 ~9.3 GiB > system_a 5.79 GiB |
+
+**已推进路线：** ZUI 原厂内核 + 只换系统侧，并完成 A 档精简打包。
+
+| 档位 | 目标 | 结果 |
+|------|------|------|
+| A（理想） | < 4.5 GiB，直接刷 system_a | **3059 MB（2.99 GiB）** |
+| B（极限） | 4.5–5.5 GiB | 未触发 |
+
+## 当前进度
+- [x] ZUI 底包解包 + 结构分析 → `docs/zui_structure.md`
+- [x] HyperOS 包解包 + 结构分析 → `docs/hyperos_structure.md`
+- [x] 可行性评估报告 → `docs/feasibility_report.md`
+- [x] vendor 差异清单 → `docs/vendor_diff.md`
+- [x] 原厂内核路线锁定 → `docs/port_stock_kernel.md`
+- [x] Debloat + A 档打包 → `docs/size_report.md`（镜像 3059 MB，未刷）
+- [ ] 首次试刷（等确认）
+- [ ] 开机调试
+
+## 文档索引
+| 文档 | 内容 |
+|------|------|
+| `docs/feasibility_report.md` | 移植可行性（结论：完整移植不可行） |
+| `docs/可行性分析.md` | 同上（中文文件名） |
+| `docs/zui_structure.md` | ZUI 底包结构 |
+| `docs/hyperos_structure.md` | HyperOS 源包结构 |
+| `docs/vendor_diff.md` | vendor/硬件差异 |
+| `docs/port_stock_kernel.md` | 原厂内核移植路线 |
+| `docs/size_report.md` | A 档体积报告 |
+| `docs/DEBLOAT_APPLIED.md` | 已删除应用清单 |
+| `docs/移植日志.md` | 时间线 |
+
+## 脚本
+见 `scripts/README.md`。大镜像不进仓库，路径在 `E:\rom\port\hyperos\assets\` 与 `out\`。
+
+## 分支策略
+- `main` / `dev`：分析成果与脚本（当前同步至 `7c401af`）
+- 实验改动请走新分支
+
+## 环境依赖
+- OrangeFox / TWRP（TB331FC 专属）
+- payload-dumper-go
+- erofs-utils（extract / mkfs）
 - magiskboot
 
-## 鍒嗘敮绛栫暐
-- `main`锛氱ǔ瀹氱増绉绘鎴愭灉銆佹寮忓彂甯?- `dev`锛氭棩甯稿紑鍙戯紙涓昏寮€鍙戝垎鏀級
-- `exp-xxx`锛氬疄楠屾€ф敼鍔?
-## 鍏嶈矗澹版槑
-鏈」鐩粎渚涘涔犱氦娴侊紝鍒锋満椋庨櫓鑷礋锛岃鍔″繀澶囦唤鍘熷巶鍏ㄩ儴鍒嗗尯銆?
+## 免责声明
+本项目仅供学习交流，刷机风险自负，请务必备份原厂全部分区。  
+**未经确认不得执行 fastboot flash 或任何分区写入。**

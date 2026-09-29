@@ -1,4 +1,4 @@
-﻿# ZUI TB331FC 分区清单（摘要，详见 docs/zui_structure.md）
+# ZUI TB331FC 分区清单（摘要，详见 docs/zui_structure.md）
 # 来源：partition.xml + super 扫描 + magiskboot
 boot.img                 96 MiB     kernel GKI 5.15.123-android13
 init_boot.img            8 MiB
