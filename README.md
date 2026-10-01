@@ -4,66 +4,88 @@
 
 ## 设备信息
 - 设备：Lenovo Xiaoxin Pad 2024（TB331FC）
-- 平台：Qualcomm SM6225-AD（Snapdragon 685）
-- 内核：GKI 5.15.123-android13（KMI: android13-5.15）
-- 底包：ZUI 16.0.544 官方固件
+- 平台：Qualcomm SM6225-AD（Snapdragon 685，`bengal`）
+- 内核：GKI `5.15.123-android13-8`（**KMI: android13-5.15**）
+- 底包：ZUI 16.0.544 官方固件（系统侧 Android 14 / SDK 34，厂商侧 Android 13 / SDK 33）
 
 ## 移植源
-- 源机型：Xiaomi Pad 6 Pro（yupei）
-- ROM：HyperOS 4.0 / Android 17
-- 包名：yupei-ota_full-OS4.0.5.0.XPZCNXM-user-17.0-4fe489f542
+- 源机型：**Xiaomi Pad 8**（codename **`yupei`**）⚠️ *不是小米平板 6 Pro —— 6 Pro 的 codename 是 `liuqin`*
+- ROM：HyperOS 4.0 / Android 17（SDK 37），厂商侧 Android 15 / SDK 35
+- 包名：`yupei-ota_full-OS4.0.5.0.XPZCNXM-user-17.0-4fe489f542`
+- CPU 微架构：`oryon`（高通自研 Oryon 核，骁龙 8 Elite 世代）
+- 内核：GKI `6.6.118-android15-8`（**KMI: android15-6.6**）
 
 ## 移植策略
 **硬件靠 ZUI，上层靠 HyperOS；内核用原厂，不换 yupei 内核。**
 
-- 保留 ZUI：boot / init_boot / vendor_boot / dtbo / vendor / odm / firmware
-- 移植 HyperOS：system / system_ext / product（已 debloat）
+- 保留 ZUI：boot / init_boot / vendor_boot / dtbo / vendor / odm / vendor_dlkm / system_dlkm / firmware
+- 移植 HyperOS：system / system_ext / product / mi_ext
 
-## 核心结论（2026-09-29）
-**完整移植 yupei HyperOS 4（含内核/vendor）不可行。**
+## 核心结论（2026-10 复核）
+**完整移植 `yupei` HyperOS 4（含内核/vendor）不可行。**
 
-| 维度 | 结论 |
-|------|------|
-| GKI KMI | android13-5.15 vs android15-6.6，不兼容（否决） |
-| SoC | SM6225 vs 新一代高通，固件/驱动不可互换 |
-| Android | 14/13 → 17，跨 3 个大版本 |
-| 空间 | 原始系统侧 ~9.3 GiB > system_a 5.79 GiB |
-
-**已推进路线：** ZUI 原厂内核 + 只换系统侧，并完成 A 档精简打包。
-
-| 档位 | 目标 | 结果 |
+| 维度 | 结论 | 量化 |
 |------|------|------|
-| A（理想） | < 4.5 GiB，直接刷 system_a | **3059 MB（2.99 GiB）** |
-| B（极限） | 4.5–5.5 GiB | 未触发 |
+| GKI KMI | ❌ **否决** | `android13-5.15` vs `android15-6.6` |
+| SoC / 固件 | ❌ **否决** | `bengal`(SM6225) vs `oryon`(骁龙 8 Elite 级) |
+| Android | ❌ | 系统 14→17（+3），厂商 13→15（+2） |
+| vendor HAL | ❌ | 显示 / 触摸 / 音频 / 传感器 **四层全不可互换** |
+| 空间 | ⚠️ **可解** | 系统侧 7.96 GiB；super 余量 5.20 GiB，重排后 8.65 GiB ≤ 11.99 GiB |
+| 文件系统 | ⚠️ 可解 | ZUI=EXT4，yupei=EROFS，可转换 |
+
+> **推荐路线**：GSI（ZUI 全底 + 通用 system），或改用与 `android13-5.15` 同代的降级源包。
+> 详见 [`docs/移植可行性报告.md`](docs/移植可行性报告.md) §9。
+
+### ⚠️ 数据修正（2026-10）
+
+早期文档（2026-09）存在若干错误，本版已用二进制实测数据全面修正：
+
+| 项 | 旧值（错） | 实测值 |
+|----|-----------|--------|
+| TB331FC `system_a` | 5.79 GiB | **5.12 GiB**（5,493,624,832 B） |
+| product / system_ext | 「system 内的目录」 | **独立的 super 逻辑分区**（566.88 MiB / 438.79 MiB） |
+| HyperOS 系统侧合计 | 9.26 GiB | **7.96 GiB**（8,549,466,112 B） |
+| 空间是否否决项 | 「物理装不下」 | **不是否决项**（可重排 super） |
+| 源机型 | 小米平板 6 Pro | **Xiaomi Pad 8（`yupei`）** |
 
 ## 当前进度
-- [x] ZUI 底包解包 + 结构分析 → `docs/zui_structure.md`
+- [x] ZUI 底包解包 + 结构分析（liblp / EXT4 实测）→ `docs/zui_structure.md`
 - [x] HyperOS 包解包 + 结构分析 → `docs/hyperos_structure.md`
-- [x] 可行性评估报告 → `docs/feasibility_report.md`
-- [x] vendor 差异清单 → `docs/vendor_diff.md`
+- [x] 解包完整性校验（8 个镜像 sha256 全部与官方 payload 清单一致）
+- [x] 可行性评估报告 → `docs/移植可行性报告.md`
+- [x] vendor 硬件栈逐层对比 → 报告 §6
+- [x] vendor 保留/补丁清单 → `docs/vendor合并补丁清单.md`
 - [x] 原厂内核路线锁定 → `docs/port_stock_kernel.md`
 - [x] Debloat + A 档打包 → `docs/size_report.md`（镜像 3059 MB，未刷）
+- [ ] 路线选择（GSI / 降级源包 / 放弃）—— **等确认**
 - [ ] 首次试刷（等确认）
-- [ ] 开机调试
 
 ## 文档索引
 | 文档 | 内容 |
 |------|------|
-| `docs/feasibility_report.md` | 移植可行性（结论：完整移植不可行） |
-| `docs/可行性分析.md` | 同上（中文文件名） |
-| `docs/zui_structure.md` | ZUI 底包结构 |
-| `docs/hyperos_structure.md` | HyperOS 源包结构 |
-| `docs/vendor_diff.md` | vendor/硬件差异 |
-| `docs/port_stock_kernel.md` | 原厂内核移植路线 |
-| `docs/size_report.md` | A 档体积报告 |
-| `docs/DEBLOAT_APPLIED.md` | 已删除应用清单 |
-| `docs/移植日志.md` | 时间线 |
+| [`docs/移植可行性报告.md`](docs/移植可行性报告.md) | **主报告**：版本差距 / KMI / 分区 / 空间 / 硬件栈 / 结论 |
+| [`docs/vendor合并补丁清单.md`](docs/vendor合并补丁清单.md) | ZUI 资产白名单 + GSI 补丁点 + 条件性合并点 |
+| [`docs/zui_structure.md`](docs/zui_structure.md) | ZUI 底包结构（已修正） |
+| [`docs/hyperos_structure.md`](docs/hyperos_structure.md) | HyperOS 源包结构（已修正） |
+| [`docs/vendor_diff.md`](docs/vendor_diff.md) | vendor 差异（已迁移至主报告 §6） |
+| [`docs/可行性分析.md`](docs/可行性分析.md) / [`docs/feasibility_report.md`](docs/feasibility_report.md) | 旧版跳转页 |
+| [`docs/port_stock_kernel.md`](docs/port_stock_kernel.md) | 原厂内核移植路线 |
+| [`docs/size_report.md`](docs/size_report.md) | A 档体积报告 |
+| [`docs/DEBLOAT_APPLIED.md`](docs/DEBLOAT_APPLIED.md) | 已删除应用清单 |
+| [`docs/移植日志.md`](docs/移植日志.md) | 时间线 |
 
 ## 脚本
-见 `scripts/README.md`。大镜像不进仓库，路径在 `E:\rom\port\hyperos\assets\` 与 `out\`。
+见 [`scripts/README.md`](scripts/README.md)。大镜像不进仓库，路径在 `E:\rom\port\hyperos\assets\` 与 `out\`。
+
+| 脚本 | 用途 |
+|------|------|
+| `scripts/parse_super_lp.py` | 解析 super 的 liblp 元数据（逻辑分区 / 大小 / extent） |
+| `scripts/ext4_ls.py` | 纯 Python 只读 EXT4 镜像遍历与导出 |
+| `scripts/extract_props.py` | 扫描镜像中的 `ro.*` / `androidboot.*` 属性 |
+| `scripts/verify_payload.py` | 解析 payload 清单并校验解包镜像 sha256 |
 
 ## 分支策略
-- `main` / `dev`：分析成果与脚本（当前同步至 `7c401af`）
+- `main` / `dev`：分析成果与脚本
 - 实验改动请走新分支
 
 ## 环境依赖
@@ -71,6 +93,7 @@
 - payload-dumper-go
 - erofs-utils（extract / mkfs）
 - magiskboot
+- Python 3（本仓库分析脚本零第三方依赖）
 
 ## 免责声明
 本项目仅供学习交流，刷机风险自负，请务必备份原厂全部分区。  

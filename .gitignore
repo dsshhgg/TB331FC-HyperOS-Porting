@@ -17,6 +17,11 @@ Thumbs.db
 *.bak
 *.swp
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
 # 本地敏感信息
 *.pat
 .env
