@@ -1,4 +1,4 @@
-# debloat_product.ps1
+﻿# debloat_product.ps1
 # 用途：按 A 档目标精简 HyperOS product 树（优先砍 data-app）
 # 时间：2026-09-29
 # 依赖：已解包的 product 树

@@ -50,7 +50,7 @@
 | manifest | 346,969 B，分区数 **45** |
 | metadata_signature | 267 B |
 | max_timestamp | 1,789,309,904 |
-| 包内 APEX | 含 `com.android.vndk.v34` 等 |
+| 包内 APEX | `/system/apex` 下 36 个（art/bt/conscrypt/media/tethering/wifi 等），**无任何 `com.android.vndk.*`**（VNDK 已移除，实测 `dump.erofs --ls --nid=283`） |
 
 ### 逐分区版本（实测）
 

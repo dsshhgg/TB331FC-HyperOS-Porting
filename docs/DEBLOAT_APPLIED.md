@@ -1,6 +1,7 @@
-# Debloat 已执行清单（2026-09-29）
-# 产品树: 6090.6 MB -> 2484.2 MB（释放 3606.4 MB）
-# 目标: A 档最终镜像 < 4.5 GiB；实际 3059 MB
+# Debloat 已执行清单（清单沿用 2026-09-29；体积已按 2026-10 v2 可信树重算）
+# 产品树: 7393.3 MB -> 2570.1 MB（释放 4823.2 MB）
+# 目标: A 档最终镜像 < 4.5 GiB；实际 3551.2 MB（3.468 GiB）
+# 注：v1 记录的 6090.6 -> 2484.2 MB 基于不完整抽取树，已废弃
 
 ## data-app 删除
 CadLauncher, WpsLauncher, wps-lite, CAJLauncher, MiShop, MiMediaEditor, Creation, SmartHome,

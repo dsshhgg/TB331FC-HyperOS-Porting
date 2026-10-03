@@ -1,4 +1,4 @@
-# unpack_zui.ps1
+﻿# unpack_zui.ps1
 # 用途：只读解包 ZUI 底包关键镜像（boot/init_boot/vendor_boot），提取内核版本
 # 时间：2026-09-29
 # 依赖：magiskboot.exe（E:\rom\tools\platform-tools\magiskboot.exe）

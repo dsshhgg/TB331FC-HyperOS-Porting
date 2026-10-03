@@ -1,4 +1,4 @@
-# unpack_hyperos.ps1
+﻿# unpack_hyperos.ps1
 # 用途：只读列出 HyperOS payload 分区，并抽取 boot/system_dlkm 以确认内核 KMI
 # 时间：2026-09-29
 # 依赖：payload-dumper-go.exe（E:\rom\port\tools\payload-dumper-go.exe）、magiskboot.exe
