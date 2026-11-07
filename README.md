@@ -113,3 +113,43 @@
 ## 免责声明
 本项目仅供学习交流，刷机风险自负，请务必备份原厂全部分区。  
 **未经确认不得执行 fastboot flash 或任何分区写入。**
+
+---
+
+## 2026-11-07 起：A17（澎湃 4.0）这条线单独成目录
+
+本仓库新增了 `docs/a17-records/`、`docs/skills/`、`scripts/a17/` 三块，是 TB331FC 上
+「只动 system、vendor 一字不改」把澎湃 4.0（Android 17 / SDK 37）开起来的全部记录与工具。
+
+### 口径更正（重要）
+
+此前文档里「A17 / 澎湃 4.0 结构性不可行、不建议继续投入」的结论**已撤回**。撤回依据是设备自己的
+回显而不是重新推断：`ro.build.version.release=17`、`ro.build.version.sdk=37`、`sys.boot_completed=1`、
+`dumpsys sensorservice` = `Total 29 h/w sensors, 29 running`、Via 与 GCam 已安装。
+现在的准确表述是：**能启动到桌面，未闭合的是可复现性**；卡点不在 vendor API level 33 代差
+（`Unexpected vendor api level for` 只是 init 的记录级输出），剩下最可疑的是 vbmeta 链公钥
+是否让 dm-verity 生效——这是**推断**，反证条件写在 `docs/a17-records/STATE.md`。
+
+旧文档正文一字未改，只在原地加「更正」标记、文末加「更正」节；被标注作废的行号仍可在该节查到。
+
+### 判定实验（缺设备即可跑）
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\a17\a17_single_var_vbmeta.ps1 -Variant prep   # fastbootd 刷三件套 + vbmeta_system_H
+# 之后在 bootloader 里，只换 8 KB 的 vbmeta_a，做单变量对照：
+powershell ... -Variant off    # 预测：链公钥不匹配 → verity 不启用 → 起桌面
+powershell ... -Variant on     # 预测：链公钥匹配   → verity 生效   → ~20 s 掉 900E
+powershell ... -Variant report # 一进一崩=机制成立；两边同行为=机制被推翻
+```
+
+### 基线提醒
+
+2026-11-01 之前这台机器的 `persist` 分区整块全零（官方刷机包的 `rawprogram0.xml` 里 persist 是
+`filename=""`，从不写它），声音与录音因此同时失效。**10-27 之前所有 A17 观测都取自那台坏 persist 的
+机器**，与新一次实验不可比；重跑必须重记。
+
+### 隐私处理
+
+上传前已脱敏：两处真机序列号 → `SN-REDACTED-A/B`、MAC → `MAC-REDACTED`、本机口令与本地记忆库
+绝对路径均已打码；`fastboot getvar all` 转储与 API 抓取残留文件不入库。仓库里只有文本记录与脚本，
+不含任何固件镜像。若你在这份历史里发现自己的设备标识被漏脱敏，请开 issue，我会改写该分支。
